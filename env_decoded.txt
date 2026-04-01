@@ -1,0 +1,1 @@
+AZURE_OPENAI_ENDPOINT=вуцчыфя AZURE_OPENAI_KEY=dxewnsikd AZURE_OPENAI_DEPLOYMENT=chdsbnujdkjewudyc

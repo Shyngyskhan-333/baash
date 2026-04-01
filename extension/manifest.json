@@ -1,0 +1,24 @@
+{
+  "manifest_version": 3,
+  "name": "LexLens — AI анализ законов",
+  "version": "1.0.0",
+  "description": "AI-помощник для работы с законодательством Казахстана на adilet.zan.kz",
+  "permissions": ["activeTab", "storage", "scripting"],
+  "host_permissions": ["https://adilet.zan.kz/*", "http://localhost:8000/*"],
+  "content_scripts": [
+    {
+      "matches": ["https://adilet.zan.kz/*"],
+      "js": ["content.js"],
+      "css": ["styles.css"]
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["sidebar.html", "sidebar.js", "styles.css"],
+      "matches": ["https://adilet.zan.kz/*"]
+    }
+  ],
+  "action": {
+    "default_title": "LexLens"
+  }
+}

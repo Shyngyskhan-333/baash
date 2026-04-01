@@ -24,7 +24,6 @@ NODE_DANGER  = "#ff4444"   # красный — много проблем
 def build_graph(documents: list, problems: list) -> nx.DiGraph:
     G = nx.DiGraph()
 
-    # Добавляем nodes
     for doc in documents:
         G.add_node(doc["id"],
                    label=doc["title"][:45] + ("…" if len(doc["title"]) > 45 else ""),
@@ -34,16 +33,13 @@ def build_graph(documents: list, problems: list) -> nx.DiGraph:
                    problem_count=0,
                    problem_types=set())
 
-    # Явные ссылки между законами
     for doc in documents:
         for ref in doc.get("references", []):
             if G.has_node(ref) and ref != doc["id"]:
                 G.add_edge(doc["id"], ref, type="reference", weight=1)
 
-    # Рёбра из найденных проблем
     for p in problems:
         if p.article_b is None:
-            # outdated — только обновляем node
             node = p.article_a["doc_id"]
             if G.has_node(node):
                 G.nodes[node]["problem_count"] += 1
@@ -106,7 +102,6 @@ def render_graph(G: nx.DiGraph, output: str = "app/graph.html") -> str:
                      width=2 if etype == "reference" else 3,
                      dashes=(etype == "reference"))
 
-    # Легенда в виде отдельных nodes
     legend = [
         ("Ссылка",       EDGE_COLORS["reference"],     "L_ref"),
         ("Дубль",        EDGE_COLORS["duplicate"],      "L_dup"),
