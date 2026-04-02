@@ -526,16 +526,14 @@ MIT License — свободное использование, включая к
 
 ---
 
-## 👥 Команда
+### 👥 Команда
 
 **LexEntropy** создали:
 
-| GitHub | Имя |
-|------|-----|
-| ![Shyngyskhan](https://github.com/Shyngyskhan-333) | **Shyngyskhan** |
-| ![Arsen](https://github.com/Arseniiiii-ai) | **Arsen** |
-| ![Baktyar](https://github.com/sronters) | **Baktyar** |
-| ![Arnur](https://github.com/arnurmakhmutzhan-eng) | **Arnur** |
+[![Shyngyskhan](https://github.com/Shyngyskhan-333.png?size=100)](https://github.com/Shyngyskhan-333)
+[![Arsen](https://github.com/Arseniiiii-ai.png?size=100)](https://github.com/Arseniiiii-ai)
+[![Baktyar](https://github.com/sronters.png?size=100)](https://github.com/sronters)
+[![Arnur](https://github.com/arnurmakhmutzhan-eng.png?size=100)](https://github.com/arnurmakhmutzhan-eng)
 
 <div align="center">
 <sub>Built with ⚖️ for Kazakhstan Legal Tech</sub>
