@@ -530,12 +530,49 @@ MIT License — свободное использование, включая к
 
 **LexEntropy** создали:
 
-| GitHub | Имя |
-|------|-----|
-| [Shyngyskhan](https://github.com/Shyngyskhan-333) | **Shyngyskhan** |
-| [Arsen](https://github.com/Arseniiiii-ai) | **Arsen** |
-| [Baktyar](https://github.com/sronters) | **Baktyar** |
-| [Arnur](https://github.com/arnurmakhmutzhan-eng) | **Arnur** |
+<table>
+<tr>
+<th>GitHub</th>
+<th>Имя</th>
+</tr>
+
+<tr>
+<td>
+<a href="https://github.com/Shyngyskhan-333">
+<img src="https://github.com/Shyngyskhan-333.png" width="60">
+</a>
+</td>
+<td>Shyngyskhan</td>
+</tr>
+
+<tr>
+<td>
+<a href="https://github.com/Arseniiiii-ai">
+<img src="https://github.com/Arseniiiii-ai.png" width="60">
+</a>
+</td>
+<td>Arsen</td>
+</tr>
+
+<tr>
+<td>
+<a href="https://github.com/sronters">
+<img src="https://github.com/sronters.png" width="60">
+</a>
+</td>
+<td>Baktyar</td>
+</tr>
+
+<tr>
+<td>
+<a href="https://github.com/arnurmakhmutzhan-eng">
+<img src="https://github.com/arnurmakhmutzhan-eng.png" width="60">
+</a>
+</td>
+<td>Arnur</td>
+</tr>
+
+</table>
 
 <div align="center">
 <sub>Built with ⚖️ for Kazakhstan Legal Tech</sub>
