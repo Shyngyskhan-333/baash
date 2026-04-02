@@ -530,8 +530,8 @@ MIT License — свободное использование, включая к
 
 **LexEntropy** создали:
 
-| Фото | Имя | Роль |
-|------|-----|------|
+| GitHub | Имя |
+|------|-----|
 | ![Shyngyskhan](https://github.com/Shyngyskhan-333) | **Shyngyskhan** |
 | ![Arsen](https://github.com/Arseniiiii-ai) | **Arsen** |
 | ![Baktyar](https://github.com/sronters) | **Baktyar** |
