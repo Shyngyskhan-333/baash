@@ -15,6 +15,21 @@
 
 ---
 
+## 🎬 GIF-демонстрация
+
+<div align="center">
+  <img src="demo/lexentropy-demo.gif" 
+       alt="LexEntropy в действии" 
+       width="85%" 
+       style="border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
+  
+  <br><br>
+  <strong>LexEntropy KZ — анализ законодательства Казахстана</strong><br>
+  <em>Поиск → Анализ коллизий → Граф знаний → Heatmap</em>
+</div>
+
+---
+
 ## ✨ Что уже работает (демо)
 
 **Видео-демонстрация (3–4 минуты):**
