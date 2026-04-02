@@ -1,5 +1,5 @@
 <div align="center">
-  <h1>⚖️ LexEntropy</h1>
+  <h1>⚖️ Legal Entropy</h1>
   <p><strong>AI-система снижения энтропии законодательства Республики Казахстан</strong></p>
   <p>Автоматическое обнаружение коллизий · Дублирований · Устаревших норм</p>
 
@@ -18,8 +18,8 @@
 ## 🎬 GIF-демонстрация
 
 <div align="center">
-  <img src="demo/lexentropy-demo.gif" 
-       alt="LexEntropy в действии" 
+  <img src="demo/legal_entropy-demo.gif" 
+       alt="Legal Entropy в действии" 
        width="85%" 
        style="border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
   
@@ -525,6 +525,17 @@ MIT License — свободное использование, включая к
 База НПА: [Әділет — Информационно-правовая система](https://adilet.zan.kz)
 
 ---
+
+## 👥 Команда
+
+**LexEntropy** создали:
+
+| Фото | Имя | Роль |
+|------|-----|------|
+| ![Shyngyskhan](https://github.com/Shyngyskhan-333) | **Shyngyskhan** |
+| ![Arsen](https://github.com/Arseniiiii-ai) | **Arsen** |
+| ![Baktyar](https://github.com/sronters) | **Baktyar** |
+| ![Arnur](https://github.com/arnurmakhmutzhan-eng) | **Arnur** |
 
 <div align="center">
 <sub>Built with ⚖️ for Kazakhstan Legal Tech</sub>
