@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>LexLens Sidebar</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="ll-sidebar-body">
+    <div class="ll-header">
+        <h2>LexLens</h2>
+        <span class="ll-version">v1.0.0</span>
+    </div>
+    
+    <div class="ll-tabs">
+        <button class="ll-tab active" data-tab="analyze">📝 Анализ</button>
+        <button class="ll-tab" data-tab="search">🔍 Поиск</button>
+        <button class="ll-tab" data-tab="chat">💬 AI Чат</button>
+        <button class="ll-tab" data-tab="graph">🔗 Связи</button>
+    </div>
+
+    <!-- Вкладка 1: АНАЛИЗ -->
+    <div id="tab-analyze" class="ll-content active">
+        <div id="analyze-loading" class="ll-loading">Загрузка анализа (может занять 1-2 минуты)...</div>
+        <div id="analyze-data" style="display:none;">
+            <div class="ll-score-card">
+                <div class="ll-score-circle" id="risk-circle">
+                    <span id="risk-score">0</span>
+                </div>
+                <div class="ll-score-desc">Общий уровень риска</div>
+            </div>
+            
+            <div class="ll-summary" id="ai-summary"></div>
+            
+            <h3>Выявленные проблемы (<span id="issues-count">0</span>)</h3>
+            <ul class="ll-issue-list" id="issue-list"></ul>
+        </div>
+    </div>
+
+    <!-- Вкладка 2: ПОИСК СТАТЬИ -->
+    <div id="tab-search" class="ll-content">
+        <div class="ll-search-box">
+            <input type="text" id="search-input" placeholder="Опишите, что ищете...">
+            <button id="search-btn">Искать</button>
+        </div>
+        <div class="ll-filters">
+            <label><input type="radio" name="scope" value="document" checked> В этом документе</label>
+            <label><input type="radio" name="scope" value="all"> Во всех законах</label>
+        </div>
+        <div id="search-results" class="ll-results"></div>
+    </div>
+
+    <!-- Вкладка 3: AI ЧАТ -->
+    <div id="tab-chat" class="ll-content">
+        <div id="chat-history" class="ll-chat-history">
+            <div class="ll-msg ll-msg-system">Привет! Я ИИ-юрист LexLens. О чем вы хотите спросить касательно этого документа?</div>
+        </div>
+        <div class="ll-chat-input-area">
+            <input type="text" id="chat-input" placeholder="Напишите вопрос...">
+            <button id="chat-btn">▶</button>
+        </div>
+    </div>
+
+    <!-- Вкладка 4: СВЯЗАННЫЕ ЗАКОНЫ -->
+    <div id="tab-graph" class="ll-content">
+        <h3>Связанные документы</h3>
+        <p class="ll-help-text">Документы, упоминаемые или ссылающиеся на текущий акт.</p>
+        <div id="graph-list" class="ll-graph-list"></div>
+    </div>
+
+    <script src="sidebar.js"></script>
+</body>
+</html>
