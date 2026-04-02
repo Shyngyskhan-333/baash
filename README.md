@@ -1,24 +1,50 @@
 <div align="center">
+  <h1>⚖️ LexEntropy</h1>
+  <p><strong>AI-система снижения энтропии законодательства Республики Казахстан</strong></p>
+  <p>Автоматическое обнаружение коллизий · Дублирований · Устаревших норм</p>
 
-# ⚖️ LexEntropy
-
-### AI-система аудита законодательства Казахстана
-
-*Обнаружение коллизий · Поиск дублирований · Анализ устаревших норм*
-
-[![Python](https://img.shields.io/badge/Python-3.10+-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://python.org)
-[![FastAPI](https://img.shields.io/badge/FastAPI-0.100+-009688?style=for-the-badge&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
-[![React](https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://react.dev)
-[![FAISS](https://img.shields.io/badge/FAISS-CPU-FF6F00?style=for-the-badge)](https://github.com/facebookresearch/faiss)
-[![License](https://img.shields.io/badge/License-MIT-8B5CF6?style=for-the-badge)](LICENSE)
-
+  <img src="https://img.shields.io/badge/Python-3.10+-3776AB?style=for-the-badge&logo=python&logoColor=white" alt="Python">
+  <img src="https://img.shields.io/badge/FastAPI-0.100+-009688?style=for-the-badge&logo=fastapi&logoColor=white" alt="FastAPI">
+  <img src="https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge&logo=react&logoColor=black" alt="React">
+  <img src="https://img.shields.io/badge/FAISS-CPU-FF6F00?style=for-the-badge" alt="FAISS">
+  <img src="https://img.shields.io/badge/Ollama-Local-FF6F00?style=for-the-badge" alt="Ollama">
+  
+  <br><br>
+  <strong>Для правительства и госорганов Казахстана</strong>
 </div>
 
 ---
 
-## 🌟 Что такое LexEntropy?
+## ✨ Что уже работает (демо)
 
-**LexEntropy** — это производственная система интеллектуального анализа нормативно-правовых актов (НПА) Республики Казахстан. Система автоматически парсит документы с портала [Әділет](https://adilet.zan.kz), строит векторную базу знаний и запускает многоуровневый пайплайн обнаружения проблем:
+**Видео-демонстрация (3–4 минуты):**
+
+[▶️ Смотреть полное демо](https://youtu.be/... )  
+*(Обязательно: экранка с голосом, где видно: поиск → анализ документа → обнаружение реальной коллизии → граф → heatmap → чат с объяснением)*
+
+**Скриншоты ключевых экранов:**
+
+![Главный поиск](screenshots/search.png)
+![Анализ документа с найденной коллизией](screenshots/analyze-collision.png)
+![Граф знаний НПА](screenshots/knowledge-graph.png)
+![Heatmap коллизий](screenshots/heatmap.png)
+![Настройки локального Ollama](screenshots/ollama-settings.png)
+!Chat bot
+!All the key things that we have done!
+
+---
+
+## 🎯 Одна фраза, которая всё меняет
+
+**Legal-Entropy превращает хаос казахстанского законодательства в предсказуемую, прозрачную и управляемую систему.**
+
+Система в реальном времени находит противоречия между нормами, выявляет дублирования и устаревшие статьи, строит граф связей и объясняет проблемы языком профессионального юриста.
+
+---
+
+## 🌟 Что такое Legal-Entropy?
+
+**Legal-Entropy** — это производственная система интеллектуального анализа нормативно-правовых актов (НПА) Республики Казахстан. Система автоматически парсит документы с портала [Әділет](https://adilet.zan.kz), строит векторную базу знаний и запускает многоуровневый пайплайн обнаружения проблем:
 
 ```
 Парсинг НПА → Чанкинг → Векторизация → Hybrid Search → NLI Детектор → LLM Объяснение
@@ -28,20 +54,32 @@
 
 ---
 
+## 🔥 Ключевые возможности
+
+- **Гибридный поиск** (BM25 + FAISS + RRF) — максимально точный по казахстанским НПА
+- **Детектор коллизий** на NLI-модели (rubert-tiny-bilingual) — O(N²) аудит всей базы
+- **Граф знаний** всех связей между нормативными актами
+- **Heatmap коллизий** — визуализация самых «горячих» зон законодательства
+- **Семантический Diff** редакций закона с AI-резюме изменений
+- **Полностью локальный режим** через Ollama + Qwen 2.5 (данные никогда не покидают сервер госоргана)
+- **Мульти-провайдер AI** (Ollama / Azure OpenAI / Anthropic / OpenAI) с переключением в UI
+
+---
+
 ## ✨ Функционал
 
 | Модуль | Описание |
 |--------|----------|
-| 🔍 **Гибридный поиск** | BM25 + семантический FAISS поиск с Reciprocal Rank Fusion |
-| ⚠️ **Детектор коллизий** | NLI-модель (`rubert-tiny-bilingual`) для выявления противоречий O(N²) |
-| 📋 **Анализ документа** | Быстрый FAISS-анализ О(K·log N) за ~100мс без блокировки |
-| 🤖 **AI Чат-помощник** | Вопросы по любому закону с контекстом из базы НПА |
-| 🕸️ **Граф знаний** | PyVis-визуализация связей между НПА |
-| 🌡️ **Heatmap коллизий** | Тепловая карта конфликтующих документов (Plotly) |
-| ↔️ **Семантический Diff** | Построчное сравнение редакций НПА с AI-резюме |
-| 🔒 **Локальный AI** | Qwen 2.5 / Llama через Ollama — 100% офлайн |
-| ☁️ **Облачный AI** | OpenAI GPT-4o, Azure OpenAI, Anthropic Claude |
-| ⚙️ **Настройки через UI** | Смена провайдера, API-ключей без перезапуска сервера |
+|  **Гибридный поиск** | BM25 + семантический FAISS поиск с Reciprocal Rank Fusion |
+|  **Детектор коллизий** | NLI-модель (`rubert-tiny-bilingual`) для выявления противоречий O(N²) |
+|  **Анализ документа** | Быстрый FAISS-анализ О(K·log N) за ~100мс без блокировки |
+|  **AI Чат-помощник** | Вопросы по любому закону с контекстом из базы НПА |
+|  **Граф знаний** | PyVis-визуализация связей между НПА |
+|  **Heatmap коллизий** | Тепловая карта конфликтующих документов (Plotly) |
+|  **Семантический Diff** | Построчное сравнение редакций НПА с AI-резюме |
+|  **Локальный AI** | Qwen 2.5 / Llama через Ollama — 100% офлайн |
+|  **Облачный AI** | OpenAI GPT-4o, Azure OpenAI, Anthropic Claude |
+|  **Настройки через UI** | Смена провайдера, API-ключей без перезапуска сервера |
 
 ---
 
