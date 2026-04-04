@@ -1,83 +1,150 @@
-export const Settings = {
-    apiUrl: 'http://localhost:8000',
-    provider: 'Ollama',
-};
+﻿import {
+  DEFAULT_PROVIDER_SETTINGS,
+  getProviderSettings,
+  saveProviderSettings,
+} from "./providerSettings.js";
 
-export async function loadSettings() {
-    return new Promise((resolve) => {
-        chrome.storage.local.get(['apiUrl', 'provider'], (res) => {
-            if (res.apiUrl) Settings.apiUrl = res.apiUrl;
-            if (res.provider) Settings.provider = res.provider;
-            resolve(Settings);
-        });
-    });
-}
-
-export async function saveSettings(apiUrl, provider) {
-    Settings.apiUrl = apiUrl;
-    Settings.provider = provider;
-    return new Promise((resolve) => {
-        chrome.storage.local.set({ apiUrl, provider }, resolve);
-    });
-}
-
-// Global AbortControllers for specific channels
-const controllers = {};
+export const Settings = { ...DEFAULT_PROVIDER_SETTINGS };
 
 /**
- * 
- * @param {string} channel 'search', 'chat', 'diff'
- * @param {string} endpoint e.g., '/api/v1/search'
- * @param {object} payload 
- * @param {object} options 
+ * Converts runtime failures into clearer UI-facing errors.
+ *
+ * @param {string} message
+ * @returns {Error}
  */
-export async function safeFetch(channel, endpoint, payload, options = {}) {
-    // Cancel previous request on the same channel
-    if (controllers[channel]) {
-        controllers[channel].abort("Cancelled by new request");
+function toRuntimeError(message) {
+  const normalizedMessage = String(message || "").trim();
+
+  if (/Extension context invalidated/i.test(normalizedMessage)) {
+    const error = new Error(
+      "Расширение было перезагружено. Обновите страницу, снова откройте LexLens и повторите попытку.",
+    );
+    error.code = "EXTENSION_CONTEXT_INVALIDATED";
+    return error;
+  }
+
+  const error = new Error(normalizedMessage || "Не удалось обменяться сообщениями с фоновым сервис-воркером.");
+  error.code = "RUNTIME_ERROR";
+  return error;
+}
+
+/**
+ * Copies the latest settings into the shared in-memory state.
+ *
+ * @param {object} nextSettings
+ * @returns {object}
+ */
+function applySettings(nextSettings) {
+  Object.assign(Settings, nextSettings);
+  return Settings;
+}
+
+/**
+ * Loads provider settings from chrome.storage.local.
+ *
+ * @returns {Promise<object>}
+ */
+export async function loadSettings() {
+  return applySettings(await getProviderSettings());
+}
+
+/**
+ * Saves provider settings to chrome.storage.local.
+ *
+ * @param {object} nextSettings
+ * @returns {Promise<object>}
+ */
+export async function saveSettings(nextSettings) {
+  return applySettings(await saveProviderSettings(nextSettings));
+}
+
+/**
+ * Sends a message to the background service worker and unwraps the result.
+ *
+ * @param {object} message
+ * @returns {Promise<object>}
+ */
+export function sendBackgroundMessage(message) {
+  return new Promise((resolve, reject) => {
+    const runtime = globalThis.chrome?.runtime;
+    if (!runtime?.sendMessage) {
+      reject(
+        toRuntimeError("chrome.runtime.sendMessage недоступен. Перезагрузите страницу расширения."),
+      );
+      return;
     }
 
-    const controller = new AbortController();
-    controllers[channel] = controller;
-    
-    // 30s timeout
-    const timeoutId = setTimeout(() => {
-        if (controllers[channel] === controller) {
-            controller.abort(new Error("Request Timeout"));
-        }
-    }, 30000);
+    runtime.sendMessage(message, (response) => {
+      const runtimeError = globalThis.chrome?.runtime?.lastError;
+      if (runtimeError) {
+        reject(toRuntimeError(runtimeError.message));
+        return;
+      }
 
-    try {
-        const fullUrl = `${Settings.apiUrl}${endpoint}`;
-        
-        const response = await fetch(fullUrl, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(payload),
-            signal: controller.signal,
-            ...options
-        });
+      if (!response) {
+        reject(new Error("Нет ответа от фонового сервис-воркера."));
+        return;
+      }
 
-        clearTimeout(timeoutId);
+      if (!response.ok) {
+        const error = new Error(response.error?.message || "Не удалось выполнить AI-запрос.");
+        error.code = response.error?.code;
+        error.status = response.error?.status;
+        error.provider = response.error?.provider;
+        reject(error);
+        return;
+      }
 
-        if (!response.ok) {
-            throw new Error(`API Error: ${response.status} ${response.statusText}`);
-        }
+      resolve(response.data);
+    });
+  });
+}
 
-        return await response.json();
-    } catch (error) {
-        clearTimeout(timeoutId);
-        if (error.name === 'AbortError') {
-            throw error; // Let caller know it was cancelled or timed out
-        }
-        
-        console.error(`[API Error (${channel})]`, error);
-        throw new Error("Не удалось подключиться к серверу. Убедитесь, что сервер запущен.");
-    } finally {
-        if (controllers[channel] === controller) {
-            delete controllers[channel];
-        }
-    }
+/**
+ * Sends a chat request to the selected provider through the service worker.
+ *
+ * @param {object} payload
+ * @param {string} [channel="chat"]
+ * @returns {Promise<object>}
+ */
+export function sendChatRequest(payload, channel = "chat") {
+  return sendBackgroundMessage({
+    type: "AI_PROVIDER_CHAT",
+    channel,
+    payload,
+  });
+}
+
+/**
+ * Runs a predefined selection pipeline through the service worker.
+ *
+ * @param {string} pipeline
+ * @param {object} context
+ * @param {string} [channel="selection-action"]
+ * @returns {Promise<object>}
+ */
+export function sendSelectionPipelineRequest(
+  pipeline,
+  context,
+  channel = "selection-action",
+) {
+  return sendBackgroundMessage({
+    type: "AI_SELECTION_PIPELINE",
+    channel,
+    pipeline,
+    context,
+  });
+}
+
+/**
+ * Runs a lightweight connectivity test for the selected provider.
+ *
+ * @param {string} [channel="settings-test"]
+ * @returns {Promise<object>}
+ */
+export function testProviderConnection(channel = "settings-test") {
+  return sendBackgroundMessage({
+    type: "AI_TEST_PROVIDER",
+    channel,
+  });
 }

@@ -1,10 +1,19 @@
-{
+﻿{
   "manifest_version": 3,
-  "name": "LexLens — AI Юрист РК",
+  "name": "LexLens - ИИ-помощник по праву",
   "version": "2.0.0",
-  "description": "AI-помощник для работы с законодательством Казахстана на adilet.zan.kz",
+  "description": "ИИ-помощник для работы с законодательством Казахстана на adilet.zan.kz.",
   "permissions": ["activeTab", "storage", "scripting"],
-  "host_permissions": ["https://adilet.zan.kz/*", "http://localhost:8000/*", "http://127.0.0.1:8000/*"],
+  "host_permissions": [
+    "https://adilet.zan.kz/*",
+    "https://*.openai.azure.com/*",
+    "http://localhost:11434/*",
+    "http://127.0.0.1:11434/*"
+  ],
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
   "content_scripts": [
     {
       "matches": ["https://adilet.zan.kz/*"],
@@ -14,11 +23,18 @@
   ],
   "web_accessible_resources": [
     {
-      "resources": ["sidebar.html", "sidebar.js", "api.js", "styles.css"],
+      "resources": [
+        "sidebar.html",
+        "sidebar.js",
+        "api.js",
+        "providerSettings.js",
+        "selectionPipelines.js",
+        "styles.css"
+      ],
       "matches": ["https://adilet.zan.kz/*"]
     }
   ],
   "action": {
-    "default_title": "LexLens Settings"
+    "default_title": "Настройки LexLens"
   }
 }
