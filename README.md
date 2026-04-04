@@ -1,1 +1,1 @@
-extension
+final LexLens chrome expansion
