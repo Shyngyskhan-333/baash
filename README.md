@@ -25,7 +25,7 @@
 
 ## Демо
 
-[Смотреть полное демо](https://www.youtube.com/watch?v=GVM50StfjBU)
+[Смотреть полное демо](https://youtu.be/y2N3nOY7tXY)
 
 ---
 
