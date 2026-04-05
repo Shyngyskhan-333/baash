@@ -232,53 +232,9 @@ LexEntropy поддерживает **полностью изолированн�
 
 -----
 
-### Команда
+developed by baash for Decentrathon 5.0
 
-**LexLens** создали:
 
-\<table\>
-\<tr\>
-\<th\>GitHub\</th\>
-\<th\>Имя\</th\>
-\</tr\>
-
-\<tr\>
-\<td\>
-\<a href="https://github.com/sronters"\>
-\<img src="https://github.com/sronters.png" width="60"\>
-\</a\>
-\</td\>
-\<td\>Baktiyar\</td\>
-\</tr\>
-
-\<tr\>
-\<td\>
-\<a href="https://github.com/Arseniiiii-ai"\>
-\<img src="https://github.com/Arseniiiii-ai.png" width="60"\>
-\</a\>
-\</td\>
-\<td\>Arsen\</td\>
-\</tr\>
-
-\<tr\>
-\<td\>
-\<a href="https://github.com/arnurmakhmutzhan-eng"\>
-\<img src="https://github.com/arnurmakhmutzhan-eng.png" width="60"\>
-\</a\>
-\</td\>
-\<td\>Arnur\</td\>
-\</tr\>
-
-\<tr\>
-\<td\>
-\<a href="https://github.com/Shyngyskhan-333"\>
-\<img src="https://github.com/Shyngyskhan-333.png" width="60"\>
-\</a\>
-\</td\>
-\<td\>SHyngyskhan\</td\>
-\</tr\>
-
-\</table\>
 
 \<div align="center"\>
 \<sub\>Built by BAASH for Kazakhstan Legal Tech\</sub\>
