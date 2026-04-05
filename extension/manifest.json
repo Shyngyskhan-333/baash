@@ -1,0 +1,45 @@
+﻿{
+  "manifest_version": 3,
+  "name": "LexLens - ИИ-помощник по праву",
+  "version": "2.0.0",
+  "description": "ИИ-помощник для работы с законодательством Казахстана на adilet.zan.kz.",
+  "permissions": ["activeTab", "storage", "scripting"],
+  "host_permissions": [
+    "<all_urls>",
+    "https://*.openai.azure.com/*",
+    "https://api.openai.com/*",
+    "http://localhost:11434/*",
+    "http://127.0.0.1:11434/*",
+    "http://127.0.0.1:8000/*",
+    "http://localhost:8000/*"
+  ],
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "all_frames": true,
+      "match_about_blank": true,
+      "js": ["content.js"],
+      "css": ["content.css"]
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "sidebar.html",
+        "sidebar.js",
+        "api.js",
+        "providerSettings.js",
+        "selectionPipelines.js",
+        "styles.css"
+      ],
+      "matches": ["<all_urls>"]
+    }
+  ],
+  "action": {
+    "default_title": "Настройки LexLens"
+  }
+}
