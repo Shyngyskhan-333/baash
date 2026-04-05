@@ -232,8 +232,10 @@ LexEntropy поддерживает **полностью изолированн�
 
 -----
 
+<div align="center">
 Built by baash for Kazakhstan Legal Tech
 
 Decentrathon 5.0 
 
 2026
+</div>
