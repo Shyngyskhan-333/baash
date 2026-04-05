@@ -1,3 +1,4 @@
+
 <div align="center">
   <h1>LexLens</h1>
   <p><strong>AI-система снижения энтропии законодательства Республики Казахстан</strong></p>
@@ -12,25 +13,19 @@
   <strong>Для правительства и госорганов Казахстана</strong>
 </div>
 
-
 **Скриншоты:**
 
 <img width="1280" height="680" alt="Image" src="https://github.com/user-attachments/assets/c56e7c66-783f-40a4-8627-6aba98e558f4" />
-
 <img width="1280" height="680" alt="Image" src="https://github.com/user-attachments/assets/ccfe6685-38f9-4c11-8853-8c20f8316c90" />
-
 <img width="1280" height="680" alt="Image" src="https://github.com/user-attachments/assets/a53937d3-c467-41b6-aec3-1e16cbac73eb" />
-
 <img width="1280" height="680" alt="Image" src="https://github.com/user-attachments/assets/3c03883c-4142-41f3-98e3-238c47ddbc4d" />
-
 <img width="507" height="913" alt="Image" src="https://github.com/user-attachments/assets/4140dfb8-ddd4-40e4-9e2c-1369219eccb5" />
 
 ---
 
 ## Демо
 
-
-[Смотреть полное демо](https://youtu.be/an1OuracBYk)  
+[Смотреть полное демо](https://www.youtube.com/watch?v=GVM50StfjBU)
 
 ---
 
@@ -38,34 +33,34 @@
 
 **LexLens** — это производственная система интеллектуального анализа НПА РК. Система автоматически парсит документы с портала [Әділет](https://adilet.zan.kz), строит векторную базу знаний и запускает многоуровневый пайплайн обнаружения проблем:
 
-```
+```text
 Парсинг НПА → Чанкинг → Векторизация → Hybrid Search → NLI Детектор → LLM Объяснение
-```
+````
 
 > **Провайдеры**: Поддерживается Azure OpenAI Compatible и полностью локальный Ollama
 
----
+-----
 
 ## Функционал
 
 | Модуль | Описание |
 |--------|----------|
-|  **Гибридный поиск** | BM25 + семантический FAISS поиск с Reciprocal Rank Fusion |
-|  **Детектор коллизий** | NLI-модель (`rubert-tiny-bilingual`) для выявления противоречий O(N²) |
-|  **Анализ документа** | Быстрый FAISS-анализ О(K·log N) за ~100мс без блокировки |
-|  **AI Чат-помощник** | Вопросы по любому закону с контекстом из базы НПА |
-|  **Граф знаний** | PyVis-визуализация связей между НПА |
-|  **Heatmap коллизий** | Тепловая карта конфликтующих документов (Plotly) |
-|  **Семантический Diff** | Построчное сравнение редакций НПА с AI-резюме |
-|  **Локальный AI** | Qwen 2.5 / Llama через Ollama — 100% офлайн |
-|  **Облачный AI** | Azure OpenAI|
-|  **Настройки через UI** | Смена провайдера, API-ключей без перезапуска сервера |
+| **Гибридный поиск** | BM25 + семантический FAISS поиск с Reciprocal Rank Fusion |
+| **Детектор коллизий** | NLI-модель (`rubert-tiny-bilingual`) для выявления противоречий O(N²) |
+| **Анализ документа** | Быстрый FAISS-анализ О(K·log N) за \~100мс без блокировки |
+| **AI Чат-помощник** | Вопросы по любому закону с контекстом из базы НПА |
+| **Граф знаний** | PyVis-визуализация связей между НПА |
+| **Heatmap коллизий** | Тепловая карта конфликтующих документов (Plotly) |
+| **Семантический Diff** | Построчное сравнение редакций НПА с AI-резюме |
+| **Локальный AI** | Qwen 2.5 / Llama через Ollama — 100% офлайн |
+| **Облачный AI** | Azure OpenAI |
+| **Настройки через UI** | Смена провайдера, API-ключей без перезапуска сервера |
 
----
+-----
 
 ## Архитектура
 
-```
+```text
 ┌──────────────────────── Frontend (React 19 + Vite) ─────────────────────────┐
 │  /          Поиск НПА     /analyze/:id   Анализ документа                   │
 │  /diff      Сравнение     /audit         Глобальный аудит                   │
@@ -97,40 +92,26 @@
 **Модели ML (работают на CPU и GPU):**
 | Модель | Задача | Размер |
 |--------|--------|--------|
-| `intfloat/multilingual-e5-small` | Векторизация чанков | ~120 MB |
-| `cointegrated/rubert-tiny-bilingual-nli` | Детекция противоречий | ~45 MB |
+| `intfloat/multilingual-e5-small` | Векторизация чанков | \~120 MB |
+| `cointegrated/rubert-tiny-bilingual-nli` | Детекция противоречий | \~45 MB |
 
----
+-----
 
 ## Быстрый старт
 
-### Требования
-- **Python** 3.10+
-- **Node.js** 18+
-- 4 GB RAM
-
-### 1. Клонировать
+### 1\. Клонирование и виртуальное окружение
 
 ```bash
-git clone https://github.com/Shyngyskhan-333/lexlens.git
-cd lexlens
-```
-
-### 2. Backend
-
-```bash
+cd https://github.com/Shyngyskhan-333/lexlens.git
 python -m venv venv
-venv\Scripts\activate        # Windows
-# source venv/bin/activate   # Linux/Mac
+.\venv\Scripts\activate
 pip install -r requirements.txt
-
-# Отредактируйте .env.example под вашего провайдера
-
 copy .env.example .env
-
 ```
 
-### 3. Frontend
+На Linux/macOS: `source venv/bin/activate` и `cp .env.example .env`.
+
+### 2\. Frontend
 
 ```bash
 cd frontend
@@ -138,159 +119,98 @@ npm install
 cd ..
 ```
 
-### 4. Запуск
+### 3\. Запуск
 
-**Терминал 1 — Backend API:**
+**Терминал 1 — API:**
+
 ```bash
-uvicorn api.main:app --port 8000 --reload
+cd https://github.com/Shyngyskhan-333/lexlens.git
+.\venv\Scripts\activate
+uvicorn api.main:app --host 127.0.0.1 --port 8000 --reload
 ```
 
-**Терминал 2 — Frontend:**
+**Терминал 2 — UI:**
+
 ```bash
 cd frontend
 npm run dev
 ```
 
-Откройте: **http://localhost:5173**
----
+Откройте `http://localhost:5173`. Swagger API: `http://127.0.0.1:8000/docs`.
 
----
+-----
 
-## Установка и запуск расширения (Unpacked)
+## Режим быстрого теста
 
-Движок: Chromium (Google Chrome, Microsoft Edge, Brave).
+Для проверки UI без долгой пересборки графа: подставляются кэшированные граф/heatmap, ускоренные флаги интерфейса.
 
-### 1. Подготовка исходников
-Склонировать:
-```bash
-git clone https://github.com/Shyngyskhan-333/lexlens.git
-cd lexlens
+**Backend:**
+
+```powershell
+$env:ENV_FILE=".env.quicktest"
+uvicorn api.main:app --host 127.0.0.1 --port 8000 --reload
 ```
-### 2. Подключение
-- Перейдите в раздел расширений
-- Включите Режим разработчика
-- Нажмите кнопку **Загрузить распакованное расширение**
-- Выберите папку /extension с корневой папки LexLens
 
----
-
-## Настройка AI-провайдера
-
-Перейдите в **http://localhost:5173/settings** для настройки через UI — без перезапуска сервера.
-
-### Локальный Qwen 2.5 (рекомендуется для госсектора)
+**Frontend:**
 
 ```bash
-# 1. Установить Ollama
-# Windows: https://ollama.com/download
-# Linux:   curl -fsSL https://ollama.com/install.sh | sh
-
-# 2. Скачать модель (~4.5 GB)
-ollama pull qwen2.5:7b
-
-# 3. Ollama стартует автоматически
+cd frontend
+npm run dev:quicktest
 ```
 
-В настройках UI: **Провайдер → Локальный (Ollama)** → Выбрать модель → Тест → Сохранить.
+Алиас: `npm run dev:demo` → то же самое. В `.env.quicktest` заданы `QUICK_TEST_MODE=1` и `GRAPH_FAST_MODE=1`. Подробности — [docs/TECHNICAL.md](https://www.google.com/search?q=docs/TECHNICAL.md) §8.
 
-### Azure OpenAI
+-----
 
-```env
-AI_PROVIDER=azure
-AZURE_OPENAI_API_KEY=...
-AZURE_OPENAI_ENDPOINT=https://your-resource.openai.azure.com/
-AZURE_OPENAI_DEPLOYMENT=gpt-4o
-```
+## Документация
 
-> ⚠️ **Важно**: `AZURE_OPENAI_DEPLOYMENT` — это именно **Deployment name** (не модель), созданный в Azure AI Studio.
+| Документ | Содержание |
+|----------|------------|
+| [docs/TECHNICAL.md](https://www.google.com/search?q=docs/TECHNICAL.md) | Полная техдокументация: таблица REST API, каталог data/, ML-стек, env, расширение, тесты, деплой |
+| [README\_QUICK\_START.md](https://www.google.com/search?q=README_QUICK_START.md) | Краткая шпаргалка команд |
+| Swagger | `http://127.0.0.1:8000/docs` при запущенном API |
 
-## Уже есть папка `data/`?
+-----
 
-> Если у вас уже есть готовая база НПА (папка `data/` с ранее проиндексированными документами), **индексировать заново не нужно**. Просто скопируйте папку и запустите сервер.
+## Расширение LexLens
 
-### Структура папки `data/` которую нужно скопировать
+  - Папка: `extension/`
+  - Chrome → `chrome://extensions` → режим разработчика → «Загрузить распакованное»
+  - Для поиска связанных НПА должен быть доступен API на `http://127.0.0.1:8000`
+  - Настройка моделей для чата — внутри сайдбара расширения (storage + опционально облачные провайдеры)
 
-```
-data/
-├── parsed/          ← JSON-файлы НПА (обязательно!)
-│   ├── K1500000377.json
-│   ├── Z1300000094.json
-│   └── ...
-├── faiss/           ← FAISS индекс и BM25 (обязательно для быстрого поиска!)
-│   ├── faiss.index
-│   └── bm25.pkl
-├── embeddings/      ← Метаданные чанков (обязательно!)
-│   └── metadata.pkl
-├── cache/           ← NLI кэш (необязательно, ускоряет аудит)
-│   └── nli_cache.json
-└── models/          ← Скачанные модели HuggingFace (необязательно)
-```
+Детали сообщений service worker и прав — [docs/TECHNICAL.md](https://www.google.com/search?q=docs/TECHNICAL.md) §9.
 
-### Инструкция
+-----
 
-**Шаг 1.** Скопируйте папку `data/` в корень склонированного репозитория:
+## Данные и модели
 
-```
-lexlens/
-├── api/
-├── src/
-├── frontend/
-├── data/         ← вставьте сюда вашу папку
-└── ...
-```
+  - Источник текстов: adilet.zan.kz (и при необходимости архивные URL).
+  - Локальные артефакты: `data/parsed/`, `data/faiss/`, `data/embeddings/`, `data/cache/`.
+  - CLI для индексации и отладки: `python pipeline.py --help`
 
-**Шаг 2.** Проверьте что индекс валиден (необязательно):
+-----
+
+## Тесты
 
 ```bash
-python -c "
-from src.retrieval.retriever import LegalRetriever
-r = LegalRetriever()
-print(f'Загружено чанков: {len(r.metadata)}')
-print(f'Примеры: {[m[\"doc_id\"] for m in r.metadata[:3]]}')
-"
+.\venv\Scripts\activate
+python -m unittest tests.test_api_smoke -v
 ```
 
-**Шаг 3.** Запустите сервисы как обычно — индекс подтянется автоматически:
-
-```bash
-uvicorn api.main:app --port 8000
-```
-
-> ⏱️ Перестройка индекса на 25 000 чанков занимает ~5-10 минут (однократно).  
-> После этого сервер стартует мгновенно при каждом следующем запуске.
-
----
-
-## Индексация НПА (с нуля)
-
-### Через UI
-
-1. Перейдите в **Индексация НПА** (`/index`)
-2. Введите ID документа с Аdilet (например: `K1500000377`)
-3. Нажмите `--build-index`
-
-### Через API
-
-```bash
-curl -X POST http://localhost:8000/api/v1/index/build \
-  -H "Content-Type: application/json" \
-  -d '{"doc_ids": ["K1500000377", "K1400000266", "Z1300000094"]}'
-```
-
-Формат ID: код документа из URL `adilet.zan.kz/rus/docs/-> K1500000377 <-`
-
----
+-----
 
 ## Безопасность для госсектора
 
 LexEntropy поддерживает **полностью изолированный** режим работы:
 
-1. **Локальный AI** — Ollama + Qwen 2.5:7b, данные не выходят за пределы сервера
-2. **Офлайн-модели** — e5-small и rubert-tiny скачиваются один раз в `data/models/`
-3. **Нет внешних запросов** — при `AI_PROVIDER=ollama` все вызовы идут на `localhost:11434`
-4. **API ключи не в коде** — хранятся в `.env` (не коммитится) и `data/ai_config.json`
+1.  **Локальный AI** — Ollama + Qwen 2.5:7b, данные не выходят за пределы сервера
+2.  **Офлайн-модели** — e5-small и rubert-tiny скачиваются один раз в `data/models/`
+3.  **Нет внешних запросов** — при `AI_PROVIDER=ollama` все вызовы идут на `localhost:11434`
+4.  **API ключи не в коде** — хранятся в `.env` (не коммитится) и `data/ai_config.json`
 
----
+-----
+
 ## Стек технологий
 
 | Уровень | Технологии |
@@ -303,63 +223,66 @@ LexEntropy поддерживает **полностью изолированн�
 | **Visualization** | PyVis (граф), Plotly (heatmap) |
 | **Data** | JSON (parsed), Pickle (FAISS/BM25 индексы) |
 
----
+-----
 
 ## Связь
 
 Проект разработан для анализа законодательства **Республики Казахстан**.  
 База НПА: [Әділет — Информационно-правовая система](https://adilet.zan.kz)
 
----
+-----
 
 ### Команда
 
 **LexLens** создали:
 
-<table>
-<tr>
-<th>GitHub</th>
-<th>Имя</th>
-</tr>
+\<table\>
+\<tr\>
+\<th\>GitHub\</th\>
+\<th\>Имя\</th\>
+\</tr\>
 
-<tr>
-<td>
-<a href="https://github.com/sronters">
-<img src="https://github.com/sronters.png" width="60">
-</a>
-</td>
-<td>Baktiyar</td>
-</tr>
+\<tr\>
+\<td\>
+\<a href="https://github.com/sronters"\>
+\<img src="https://github.com/sronters.png" width="60"\>
+\</a\>
+\</td\>
+\<td\>Baktiyar\</td\>
+\</tr\>
 
-<tr>
-<td>
-<a href="https://github.com/Arseniiiii-ai">
-<img src="https://github.com/Arseniiiii-ai.png" width="60">
-</a>
-</td>
-<td>Arsen</td>
-</tr>
+\<tr\>
+\<td\>
+\<a href="https://github.com/Arseniiiii-ai"\>
+\<img src="https://github.com/Arseniiiii-ai.png" width="60"\>
+\</a\>
+\</td\>
+\<td\>Arsen\</td\>
+\</tr\>
 
-<tr>
-<td>
-<a href="https://github.com/arnurmakhmutzhan-eng">
-<img src="https://github.com/arnurmakhmutzhan-eng.png" width="60">
-</a>
-</td>
-<td>Arnur</td>
-</tr>
+\<tr\>
+\<td\>
+\<a href="https://github.com/arnurmakhmutzhan-eng"\>
+\<img src="https://github.com/arnurmakhmutzhan-eng.png" width="60"\>
+\</a\>
+\</td\>
+\<td\>Arnur\</td\>
+\</tr\>
 
-<tr>
-<td>
-<a href="https://github.com/Shyngyskhan-333">
-<img src="https://github.com/Shyngyskhan-333.png" width="60">
-</a>
-</td>
-<td>SHyngyskhan</td>
-</tr>
+\<tr\>
+\<td\>
+\<a href="https://github.com/Shyngyskhan-333"\>
+\<img src="https://github.com/Shyngyskhan-333.png" width="60"\>
+\</a\>
+\</td\>
+\<td\>SHyngyskhan\</td\>
+\</tr\>
 
-</table>
+\</table\>
 
-<div align="center">
-<sub>Built by BAASH for Kazakhstan Legal Tech</sub>
-</div>
+\<div align="center"\>
+\<sub\>Built by BAASH for Kazakhstan Legal Tech\</sub\>
+\</div\>
+
+```
+```
