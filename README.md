@@ -12,6 +12,7 @@
   <br><br>
   <strong>Для правительства и госорганов Казахстана</strong>
   <h1>TOP 4(3) IN DECENTRATHON 5.0 WITH 75 POINTS</h1>
+  <strong>Other TOP team projects: https://docs.google.com/spreadsheets/d/1R7f9uPYymvzNWdu2J-zSP4HmnMAkjnFH8imK_JEEv6w/edit?usp=drivesdk</strong>
 </div>
 
 **Скриншоты:**
