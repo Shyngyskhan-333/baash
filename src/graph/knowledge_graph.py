@@ -111,7 +111,18 @@ class LegalKnowledgeGraph:
         )
 
         net.set_options(
-            
+            """
+            {
+              "physics": {
+                "enabled": true,
+                "stabilization": { "iterations": 120 }
+              },
+              "interaction": {
+                "hover": true,
+                "navigationButtons": true
+              }
+            }
+            """
         )
 
         try:
@@ -180,7 +191,22 @@ class LegalKnowledgeGraph:
         net.save_graph(str(tmp_path))
         html_data = tmp_path.read_text(encoding="utf-8")
 
-        click_js = 
+        click_js = """
+        <script>
+        if (typeof network !== "undefined") {
+          network.on("click", function (params) {
+            if (!params.nodes || params.nodes.length === 0) {
+              return;
+            }
+            var nodeId = params.nodes[0];
+            var node = nodes.get(nodeId);
+            if (node && node.doc_id) {
+              window.parent.postMessage({ type: "lexlens:open-document", docId: node.doc_id }, "*");
+            }
+          });
+        }
+        </script>
+        """
         html_data = html_data.replace("</body>", click_js + "</body>")
 
         return html_data

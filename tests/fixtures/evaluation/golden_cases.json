@@ -1,0 +1,42 @@
+{
+  "schema_version": "1",
+  "description": "Synthetic local evaluation cases for deterministic LexLens evidence-core checks. These fixtures do not assert legal correctness.",
+  "cases": [
+    {
+      "case_type": "retrieval_recall",
+      "name": "Retrieve synthetic banking obligation citation",
+      "query": "bank compliance reporting obligation",
+      "expected_citation_ids": [
+        "citation_synthetic_bank_obligation_001"
+      ],
+      "expected_document_version_ids": [
+        "version_synthetic_bank_law_2026_001"
+      ],
+      "source": "fixture:golden_cases"
+    },
+    {
+      "case_type": "citation_accuracy",
+      "name": "Preserve synthetic citation quote and version",
+      "query": "quote for synthetic licensing requirement",
+      "expected_citation_ids": [
+        "citation_synthetic_license_requirement_001"
+      ],
+      "expected_document_version_ids": [
+        "version_synthetic_license_rule_2026_001"
+      ],
+      "source": "fixture:golden_cases"
+    },
+    {
+      "case_type": "answer_grounding",
+      "name": "Ground synthetic AI answer to expected citation",
+      "query": "explain synthetic notification requirement",
+      "expected_citation_ids": [
+        "citation_synthetic_notification_requirement_001"
+      ],
+      "expected_document_version_ids": [
+        "version_synthetic_notification_rule_2026_001"
+      ],
+      "source": "fixture:golden_cases"
+    }
+  ]
+}

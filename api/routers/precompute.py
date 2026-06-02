@@ -24,7 +24,17 @@ def _list_doc_ids() -> List[str]:
         return []
     return sorted({p.stem for p in parsed_dir.glob("*.json")})
 
-async def _run_precompute(ids: List[str], req: PrecomputeRequest) -> dict:
+@router.post("/precompute/all")
+async def precompute_all(
+    req: Optional[PrecomputeRequest] = None,
+    background_tasks: BackgroundTasks = None,
+):
+    req = req or PrecomputeRequest()
+    start = time.time()
+    ids = req.doc_ids or _list_doc_ids()
+    if not ids:
+        raise HTTPException(status_code=400, detail="No documents available for precompute.")
+
     if req.async_mode:
         if background_tasks is None:
             background_tasks = BackgroundTasks()
@@ -38,22 +48,10 @@ async def _run_precompute(ids: List[str], req: PrecomputeRequest) -> dict:
             "elapsed_sec": 0,
         }
 
-    return await _run_precompute(ids, req)
+    return await _run_precompute_now(ids, req, start)
 
-def _run_precompute_sync(ids: List[str], req: PrecomputeRequest) -> None:
-    asyncio.run(_run_precompute(ids, req))
 
-@router.post("/precompute/all")
-async def precompute_all(
-    req: Optional[PrecomputeRequest] = None,
-    background_tasks: BackgroundTasks = None,
-):
-    req = req or PrecomputeRequest()
-    start = time.time()
-    ids = req.doc_ids or _list_doc_ids()
-    if not ids:
-        raise HTTPException(status_code=400, detail="No documents available for precompute.")
-
+async def _run_precompute_now(ids: List[str], req: PrecomputeRequest, start: float) -> dict:
     analyze_count = 0
     if req.include_analyze:
         for doc_id in ids:
@@ -83,3 +81,8 @@ async def precompute_all(
         "graph_cached": graph_done,
         "elapsed_sec": round(time.time() - start, 2),
     }
+
+
+def _run_precompute_sync(ids: List[str], req: PrecomputeRequest) -> None:
+    req.async_mode = False
+    asyncio.run(_run_precompute_now(ids, req, time.time()))

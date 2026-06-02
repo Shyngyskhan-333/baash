@@ -8,6 +8,7 @@ from typing import Dict, Any, List, Optional
 from api.models.schemas import AnalyzeResponse, RelatedLaw
 from api.services.nlp_service import nlp_service
 from api.services.ai_provider import ai_provider
+from src.evidence.analyze_grounding import ground_analyze_summary
 
 router = APIRouter()
 CACHE_DIR = Path("data/cache")
@@ -161,7 +162,15 @@ async def _process_analyze(doc_id: str, doc_ids: Optional[List[str]] = None, for
     excerpt = _compact_doc_excerpt(doc)
     related_laws = _related_laws_from_references(doc)
 
-    summary_prompt = f
+    summary_prompt = (
+        "Сделай краткий смысловой разбор нормативного акта Республики Казахстан. "
+        "Не оценивай коллизии и юридические риски, если они не указаны во входных данных. "
+        "Явно укажи, что это смысловой разбор, а не юридическое заключение. "
+        "Верни JSON с полями summary, summary_short, sections и reasoning.\n\n"
+        f"Документ: {title}\n"
+        f"ID: {doc_id}\n\n"
+        f"Текст:\n{excerpt}"
+    )
 
     try:
         ai_response = await ai_provider.complete(
@@ -227,7 +236,7 @@ async def _process_analyze(doc_id: str, doc_ids: Optional[List[str]] = None, for
         doc_id=doc_id,
         title=title,
         risk_score=0.0,
-        risk_level="low",
+        risk_level="medium",
         issues=[],
         summary=ai_summary,
         summary_short=ai_summary_short,
@@ -235,6 +244,25 @@ async def _process_analyze(doc_id: str, doc_ids: Optional[List[str]] = None, for
         reasoning=ai_reasoning,
         related_laws=related_laws,
     )
+    if not result.summary.startswith("[Смысловой разбор]"):
+        result.summary = "[Смысловой разбор] " + result.summary
+    if result.summary_short and not result.summary_short.startswith("[Смысловой разбор]"):
+        result.summary_short = "[Смысловой разбор] " + result.summary_short
+
+    try:
+        result.grounding = ground_analyze_summary(
+            doc_id=doc_id,
+            title=title,
+            doc=doc,
+            summary=result.summary,
+            messages=[{"role": "user", "content": summary_prompt}],
+            system_prompt="LexLens analyze summary prompt v1",
+            model_name="configured-ai-provider",
+            model_version="analyze-summary-v1",
+        )
+    except Exception as error:
+        print(f"[ANALYZE_GROUNDING_ERROR] {error}")
+
     payload = result.model_dump()
     payload["analyze_mode"] = _CACHE_MODE_MARK
     _save_cached_analyze(doc_id, doc_ids, payload)

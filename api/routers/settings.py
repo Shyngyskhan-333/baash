@@ -1,13 +1,21 @@
 
 import json
+import os
 from pathlib import Path
 from fastapi import APIRouter, HTTPException
-from pydantic import BaseModel
-from typing import Optional, Dict, Any
+from pydantic import BaseModel, field_validator
+from typing import Optional
+
+from src.audit.events import build_ai_settings_audit_log
+from src.audit.sink import JsonlAuditSink
+from src.evidence.models import AuditLog
+from src.security.rbac import PermissionDenied, ProtectedAction, require_permission
 
 router = APIRouter()
 
 CONFIG_PATH = Path("data/ai_config.json")
+SECRET_FIELDS = {"azure_key", "openai_key", "anthropic_key"}
+ALLOWED_PROVIDERS = {"mock", "azure", "openai", "anthropic", "ollama"}
 
 class AIConfig(BaseModel):
     provider: str = "mock"
@@ -21,6 +29,14 @@ class AIConfig(BaseModel):
     anthropic_model: Optional[str] = "claude-3-5-sonnet-latest"
     ollama_url: Optional[str] = "http://localhost:11434"
     ollama_model: Optional[str] = "qwen2.5:7b"
+
+    @field_validator("provider")
+    @classmethod
+    def validate_provider(cls, value: str) -> str:
+        provider = (value or "mock").strip().lower()
+        if provider not in ALLOWED_PROVIDERS:
+            raise ValueError(f"Unsupported AI provider: {value}")
+        return provider
 
 def _load_config() -> dict:
     if CONFIG_PATH.exists():
@@ -36,6 +52,47 @@ def _save_config(config: dict):
     with open(CONFIG_PATH, "w", encoding="utf-8") as f:
         json.dump(config, f, ensure_ascii=False, indent=2)
 
+def _is_masked_secret(value: Optional[str]) -> bool:
+    return bool(value and "..." in value)
+
+def _merge_preserving_secrets(existing: dict, incoming: dict) -> dict:
+    merged = {**existing, **incoming}
+    for key in SECRET_FIELDS:
+        value = incoming.get(key)
+        if value is None or value == "" or _is_masked_secret(value):
+            merged[key] = existing.get(key, "")
+    return merged
+
+def _production_mode_enabled() -> bool:
+    for key in ("LEXLENS_ENV", "APP_ENV", "ENV"):
+        if (os.getenv(key) or "").strip().lower() in {"prod", "production"}:
+            return True
+    return False
+
+def _require_settings_write_allowed() -> None:
+    try:
+        require_permission(
+            None,
+            ProtectedAction.MANAGE_AI_SETTINGS,
+            production_mode=_production_mode_enabled(),
+        )
+    except PermissionDenied as exc:
+        raise HTTPException(
+            status_code=exc.status_code,
+            detail="AI settings writes are disabled in production without RBAC/admin authentication.",
+        ) from exc
+
+def _build_ai_settings_audit_log(before_config: dict, after_config: dict) -> AuditLog:
+    return build_ai_settings_audit_log(
+        actor_id="system",
+        before_config=before_config,
+        after_config=after_config,
+        reason="settings.ai.updated",
+    )
+
+def _append_audit_log(audit_log: AuditLog) -> None:
+    JsonlAuditSink().append(audit_log)
+
 @router.get("/settings/ai")
 async def get_ai_settings():
 
@@ -50,7 +107,11 @@ async def get_ai_settings():
 @router.post("/settings/ai")
 async def save_ai_settings(config: AIConfig):
 
-    data = config.model_dump()
+    _require_settings_write_allowed()
+    existing = _load_config()
+    data = _merge_preserving_secrets(existing, config.model_dump())
+    audit_log = _build_ai_settings_audit_log(existing, data)
+    _append_audit_log(audit_log)
     _save_config(data)
     return {"status": "ok", "message": "Настройки сохранены"}
 

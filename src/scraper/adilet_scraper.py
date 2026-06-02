@@ -1,17 +1,20 @@
 
+from __future__ import annotations
+
 import asyncio
+import html as html_lib
 import json
 import os
 import re
 from pathlib import Path
 
 import aiohttp
-import requests
-import urllib3
-from bs4 import BeautifulSoup
-from requests.adapters import HTTPAdapter
-from tqdm import tqdm
-from urllib3.util.retry import Retry
+
+try:
+    from tqdm import tqdm
+except ImportError:
+    def tqdm(iterable, **_kwargs):
+        return iterable
 
 HEADERS = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
@@ -34,6 +37,36 @@ HEADER_LINE = re.compile(
 
 DOM_MIN_ARTICLES = 3
 
+
+def _beautiful_soup(html: str):
+    try:
+        from bs4 import BeautifulSoup
+    except ImportError as exc:
+        raise RuntimeError("beautifulsoup4 is required for Adilet parsing; install requirements.txt") from exc
+    return BeautifulSoup(html, "lxml")
+
+
+def _metadata_only_document_from_html(html: str, doc_id: str) -> dict:
+    title = doc_id
+    title_match = re.search(r"<h1[^>]*>(.*?)</h1>", html, re.IGNORECASE | re.DOTALL)
+    if not title_match:
+        title_match = re.search(r"<title[^>]*>(.*?)</title>", html, re.IGNORECASE | re.DOTALL)
+    if title_match:
+        raw_title = re.sub(r"<[^>]+>", " ", title_match.group(1))
+        title = re.sub(r"\s+", " ", html_lib.unescape(raw_title)).strip() or doc_id
+
+    date_match = re.search(r"\d{2}\.\d{2}\.\d{4}", html)
+    references = sorted(set(re.findall(r"/rus/docs/([A-Z]\d+_?)", html, re.IGNORECASE)))
+    return {
+        "doc_id": doc_id,
+        "title": title,
+        "date": date_match.group(0) if date_match else "",
+        "url": f"https://adilet.zan.kz/rus/docs/{doc_id}",
+        "articles": [],
+        "references": references,
+        "parse_quality": "metadata_only",
+    }
+
 def _write_raw_cache(path: Path, text: str) -> None:
     path.write_text(text, encoding="utf-8")
 
@@ -48,7 +81,14 @@ def fetch_html(doc_id: str) -> tuple[str, str]:
         return doc_id, cache.read_text(encoding="utf-8")
     url = f"https://adilet.zan.kz/rus/docs/{doc_id}"
 
-    import urllib3
+    try:
+        import requests
+        import urllib3
+        from requests.adapters import HTTPAdapter
+        from urllib3.util.retry import Retry
+    except ImportError as exc:
+        raise RuntimeError("requests is required for synchronous Adilet fetch; install requirements.txt") from exc
+
     urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
     with requests.Session() as session:
@@ -253,9 +293,13 @@ def _document_from_soup(soup: BeautifulSoup, doc_id: str, doc_url: str) -> dict:
 def parse_document_from_html(html: str, doc_id: str) -> dict | None:
     parsed_path = PARSED_DIR / f"{doc_id}.json"
     try:
-        soup = BeautifulSoup(html, "lxml")
-        doc_url = f"https://adilet.zan.kz/rus/docs/{doc_id}"
-        doc = _document_from_soup(soup, doc_id, doc_url)
+        try:
+            soup = _beautiful_soup(html)
+            doc_url = f"https://adilet.zan.kz/rus/docs/{doc_id}"
+            doc = _document_from_soup(soup, doc_id, doc_url)
+        except RuntimeError as missing_parser:
+            print(f"  {doc_id}: parser fallback — {missing_parser}")
+            doc = _metadata_only_document_from_html(html, doc_id)
         with open(parsed_path, "w", encoding="utf-8") as f:
             json.dump(doc, f, ensure_ascii=False, indent=2)
         print(f"  {doc_id}: '{doc['title'][:55]}' — {len(doc['articles'])} статей")

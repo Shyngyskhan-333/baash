@@ -1,12 +1,21 @@
 import json
 import os
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional
 
 import httpx
-from anthropic import AsyncAnthropic
 from dotenv import load_dotenv
-from openai import AsyncAzureOpenAI, AsyncOpenAI
+
+try:
+    from anthropic import AsyncAnthropic
+except ModuleNotFoundError:
+    AsyncAnthropic = None
+
+try:
+    from openai import AsyncAzureOpenAI, AsyncOpenAI
+except ModuleNotFoundError:
+    AsyncAzureOpenAI = None
+    AsyncOpenAI = None
 
 env_file = os.getenv("ENV_FILE", ".env").strip() or ".env"
 load_dotenv(dotenv_path=Path(env_file))
@@ -16,9 +25,9 @@ CONFIG_PATH = Path("data/ai_config.json")
 
 class AIProvider:
     def __init__(self):
-        self._azure_client: Optional[AsyncAzureOpenAI] = None
-        self._openai_client: Optional[AsyncOpenAI] = None
-        self._anthropic_client: Optional[AsyncAnthropic] = None
+        self._azure_client: Optional[Any] = None
+        self._openai_client: Optional[Any] = None
+        self._anthropic_client: Optional[Any] = None
         self._azure_signature: Optional[tuple] = None
         self._openai_signature: Optional[tuple] = None
         self._anthropic_signature: Optional[tuple] = None
@@ -57,6 +66,8 @@ class AIProvider:
         }
 
     async def _complete_azure(self, config: Dict[str, str], messages: List[Dict[str, str]]) -> str:
+        if AsyncAzureOpenAI is None:
+            return "Azure OpenAI provider unavailable: package openai is not installed."
         if not config["azure_key"] or not config["azure_endpoint"]:
             return "Ошибка конфигурации Azure OpenAI: отсутствует endpoint или API-ключ."
 
@@ -80,6 +91,8 @@ class AIProvider:
         return response.choices[0].message.content or ""
 
     async def _complete_openai(self, config: Dict[str, str], messages: List[Dict[str, str]]) -> str:
+        if AsyncOpenAI is None:
+            return "OpenAI provider unavailable: package openai is not installed."
         if not config["openai_key"]:
             return "Ошибка конфигурации OpenAI: отсутствует API-ключ."
 
@@ -101,6 +114,8 @@ class AIProvider:
         return response.choices[0].message.content or ""
 
     async def _complete_anthropic(self, config: Dict[str, str], messages: List[Dict[str, str]]) -> str:
+        if AsyncAnthropic is None:
+            return "Anthropic provider unavailable: package anthropic is not installed."
         if not config["anthropic_key"]:
             return "Ошибка конфигурации Anthropic: отсутствует API-ключ."
 

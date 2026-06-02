@@ -1,10 +1,5 @@
 
 import difflib
-from typing import Dict, List
-
-import numpy as np
-
-from src.embeddings.embedder import embed_text
 
 def highlight_text_diff(text_old: str, text_new: str) -> str:
 
@@ -28,13 +23,19 @@ def highlight_text_diff(text_old: str, text_new: str) -> str:
 
 def semantic_diff_chunk(old_text: str, new_text: str) -> dict:
 
-    vec_old = embed_text(old_text, is_query=False)
-    vec_new = embed_text(new_text, is_query=False)
+    try:
+        import numpy as np
+        from src.embeddings.embedder import embed_text
 
-    v1 = vec_old.astype(np.float32)
-    v2 = vec_new.astype(np.float32)
+        vec_old = embed_text(old_text, is_query=False)
+        vec_new = embed_text(new_text, is_query=False)
 
-    score = float(np.dot(v1, v2))
+        v1 = vec_old.astype(np.float32)
+        v2 = vec_new.astype(np.float32)
+
+        score = float(np.dot(v1, v2))
+    except Exception:
+        score = difflib.SequenceMatcher(None, old_text, new_text).ratio()
 
     if score > 0.95:
         category = "unchanged"

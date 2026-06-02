@@ -7,7 +7,11 @@ from api.services.ai_provider import ai_provider
 
 router = APIRouter()
 
-SYSTEM_PROMPT = 
+SYSTEM_PROMPT = (
+    "Ты AI-юрист по нормативным актам Республики Казахстан. "
+    "Отвечай только на основе предоставленного контекста, явно отмечай низкую уверенность "
+    "и не выдавай ответ за юридическое заключение."
+)
 
 def _build_context(request: ChatRequest):
 

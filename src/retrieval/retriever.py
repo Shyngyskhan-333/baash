@@ -3,11 +3,39 @@ import pickle
 import re
 from pathlib import Path
 
-import faiss
-import numpy as np
-from rank_bm25 import BM25Okapi
+try:
+    from rank_bm25 import BM25Okapi
+except ModuleNotFoundError:
+    class BM25Okapi:
+        def __init__(self, tokenized_corpus):
+            self.tokenized_corpus = tokenized_corpus
 
-from src.embeddings.embedder import embed_text, embed_texts
+        def get_scores(self, tokenized_query):
+            query_terms = set(tokenized_query)
+            return [float(len(query_terms & set(document_terms))) for document_terms in self.tokenized_corpus]
+
+try:
+    import numpy as np
+except ModuleNotFoundError:
+    np = None
+
+try:
+    import faiss
+except ModuleNotFoundError:
+    faiss = None
+
+
+class _UnavailableFaissIndex:
+    def add(self, *_args, **_kwargs):
+        raise RuntimeError("FAISS is not installed")
+
+    def search(self, *_args, **_kwargs):
+        raise RuntimeError("FAISS is not installed")
+
+
+def _top_indices(scores, limit: int) -> list[int]:
+    return sorted(range(len(scores)), key=lambda index: scores[index], reverse=True)[:limit]
+
 
 class LegalRetriever:
     def __init__(self, data_dir: str = "data"):
@@ -32,7 +60,9 @@ class LegalRetriever:
 
     def load(self):
 
-        if self.faiss_path.exists():
+        if faiss is None:
+            self.index = _UnavailableFaissIndex()
+        elif self.faiss_path.exists():
             self.index = faiss.read_index(str(self.faiss_path))
         else:
             self.index = faiss.IndexFlatIP(self.dim)
@@ -53,7 +83,8 @@ class LegalRetriever:
 
     def save(self):
 
-        faiss.write_index(self.index, str(self.faiss_path))
+        if faiss is not None:
+            faiss.write_index(self.index, str(self.faiss_path))
         with open(self.meta_path, "wb") as f:
             pickle.dump(self.metadata, f)
         if self.bm25 is not None:
@@ -87,6 +118,16 @@ class LegalRetriever:
             return 0
 
         print(f"Векторизация {len(new_chunks)} новых чанков (e5-small)...")
+        if faiss is None or np is None:
+            print("[RETRIEVER] FAISS/numpy unavailable; updating BM25 metadata only.")
+            self.metadata.extend(new_chunks)
+            all_texts = [m["text"] for m in self.metadata]
+            self.bm25 = BM25Okapi([self._tokenize(t) for t in all_texts])
+            self.save()
+            return len(new_chunks)
+
+        from src.embeddings.embedder import embed_texts
+
         texts = [c["text"] for c in new_chunks]
         vecs_fp32 = embed_texts(texts, is_query=False, batch_size=32).astype(np.float32)
         faiss.normalize_L2(vecs_fp32)
@@ -110,9 +151,13 @@ class LegalRetriever:
         rrf_k = 60
         rrf_scores: dict = {}
 
-        faiss_scores = np.empty((1, 0), dtype=np.float32)
-        faiss_indices = np.empty((1, 0), dtype=np.int64)
+        faiss_scores = [[]]
+        faiss_indices = [[]]
         try:
+            if faiss is None or np is None:
+                raise RuntimeError("FAISS/numpy unavailable")
+            from src.embeddings.embedder import embed_text
+
             query_vec = embed_text(query, is_query=True).astype(np.float32).reshape(1, -1)
             faiss.normalize_L2(query_vec)
             faiss_scores, faiss_indices = self.index.search(query_vec, search_k)
@@ -129,7 +174,7 @@ class LegalRetriever:
         if self.bm25 is not None:
             tokenized_query = self._tokenize(query)
             bm25_raw = self.bm25.get_scores(tokenized_query)
-            bm25_indices = np.argsort(bm25_raw)[::-1][:search_k]
+            bm25_indices = _top_indices(bm25_raw, search_k)
             for rank, idx in enumerate(bm25_indices):
                 if doc_ids and self.metadata[int(idx)].get("doc_id") not in doc_ids:
                     continue
@@ -142,7 +187,7 @@ class LegalRetriever:
         results = []
         for idx in sorted_indices:
             fa_score = 0.0
-            loc = np.where(faiss_indices[0] == idx)[0]
+            loc = np.where(faiss_indices[0] == idx)[0] if np is not None else []
             if len(loc) > 0:
                 fa_score = float(faiss_scores[0][loc[0]])
 
@@ -163,9 +208,13 @@ class LegalRetriever:
         if not doc_indices:
             return []
 
-        query_vec = embed_text(query, is_query=True).astype(np.float32).reshape(1, -1)
         results = []
         try:
+            if faiss is None or np is None:
+                raise RuntimeError("FAISS/numpy unavailable")
+            from src.embeddings.embedder import embed_text
+
+            query_vec = embed_text(query, is_query=True).astype(np.float32).reshape(1, -1)
             faiss.normalize_L2(query_vec)
 
             search_k = min(len(self.metadata), max(top_k * 20, len(doc_indices) + 50))
@@ -186,7 +235,7 @@ class LegalRetriever:
             local_items = [self.metadata[index] for index in doc_indices]
             local_bm25 = BM25Okapi([self._tokenize(item["text"]) for item in local_items])
             scores = local_bm25.get_scores(query_tokens)
-            sorted_indices = np.argsort(scores)[::-1][:top_k]
+            sorted_indices = _top_indices(scores, top_k)
             for idx in sorted_indices:
                 item = local_items[int(idx)].copy()
                 item["cosine_score"] = 0.0
@@ -225,12 +274,22 @@ class LegalRetriever:
 
         if not new_chunks:
             self.metadata = []
-            self.index = faiss.IndexHNSWFlat(self.dim, 32, faiss.METRIC_INNER_PRODUCT)
+            self.index = _UnavailableFaissIndex() if faiss is None else faiss.IndexHNSWFlat(self.dim, 32, faiss.METRIC_INNER_PRODUCT)
             self.bm25 = None
             self.save()
             return 0
 
         print("Пересборка индекса из подготовленных JSON...")
+        if faiss is None or np is None:
+            print("[RETRIEVER] FAISS/numpy unavailable; rebuilding BM25 metadata only.")
+            self.metadata = new_chunks
+            self.index = _UnavailableFaissIndex()
+            self.bm25 = BM25Okapi([self._tokenize(chunk["text"]) for chunk in new_chunks])
+            self.save()
+            return len(new_chunks)
+
+        from src.embeddings.embedder import embed_texts
+
         texts = [chunk["text"] for chunk in new_chunks]
         vecs_fp32 = embed_texts(texts, is_query=False, batch_size=32).astype(np.float32)
         faiss.normalize_L2(vecs_fp32)

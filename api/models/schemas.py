@@ -53,6 +53,7 @@ class AnalyzeResponse(BaseModel):
     sections: Optional[Dict[str, str]] = None
     reasoning: Optional[str] = None
     related_laws: List[RelatedLaw]
+    grounding: Optional[Dict[str, Any]] = None
 
 class DiffRequest(BaseModel):
     doc_id: Optional[str] = None

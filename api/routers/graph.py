@@ -5,8 +5,6 @@ import hashlib
 from pathlib import Path
 import os
 
-from src.graph.knowledge_graph import LegalKnowledgeGraph
-
 router = APIRouter()
 CACHE_DIR = Path("data/cache/graph")
 CACHE_DIR.mkdir(parents=True, exist_ok=True)
@@ -15,6 +13,11 @@ DEMO_HEATMAP_PATH = CACHE_DIR / "demo_heatmap.json"
 DEMO_GRAPH_PATH = CACHE_DIR / "demo_graph.html"
 GRAPH_HTML_VERSION = "3"
 HIDE_LOADING_STYLE = "<style>#loadingBar{display:none!important;}</style>"
+
+
+def _load_graph():
+    from src.graph.knowledge_graph import LegalKnowledgeGraph
+    return LegalKnowledgeGraph()
 
 
 def _quick_test_enabled(query_flag: Optional[bool]) -> bool:
@@ -155,12 +158,18 @@ async def get_graph_html(
             if cached_html:
                 return HTMLResponse(content=_hide_loading_bar(cached_html))
 
-        graph = LegalKnowledgeGraph()
+        graph = _load_graph()
         if len(graph.G.nodes) == 0:
             if _is_usable_graph_html(cached_preferred):
                 return HTMLResponse(content=_hide_loading_bar(cached_preferred))
             return HTMLResponse(
-                content=
+                content=(
+                    "<!doctype html><html><head><meta charset=\"utf-8\">"
+                    "<style>body{font-family:Arial,sans-serif;margin:24px;color:#334155;}</style>"
+                    "</head><body><h3>Нет данных графа</h3>"
+                    "<p>Запустите аудит или индексацию, чтобы построить граф связей.</p>"
+                    "</body></html>"
+                )
             )
 
         cache_path = _cache_key("html", filter_type, doc_ids).with_suffix(".html")
@@ -197,7 +206,7 @@ async def get_graph_heatmap(
             if payload is not None:
                 return JSONResponse(content=payload)
 
-        graph = LegalKnowledgeGraph()
+        graph = _load_graph()
         if len(graph.G.nodes) == 0:
             return JSONResponse(content={"data": [], "layout": {"title": "Нет данных — запустите Аудит"}})
 

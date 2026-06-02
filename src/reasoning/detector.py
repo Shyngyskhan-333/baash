@@ -1,16 +1,10 @@
 
 from dataclasses import dataclass
-from typing import Dict, List, Optional, Tuple
+from typing import List, Optional
 import asyncio
-import numpy as np
-import faiss
-import os
-from tqdm import tqdm
 
 from src.reasoning.explainer import explain_contradiction
-from src.reasoning.nli import check_contradictions_batch
 from src.retrieval.retriever import LegalRetriever
-from src.embeddings.embedder import embed_texts
 
 @dataclass
 class Problem:
@@ -124,6 +118,11 @@ async def detect_all_problems(retriever: LegalRetriever, top_k_explain: int = 10
 
     if not pairs_to_check:
         return problems
+
+    try:
+        from src.reasoning.nli import check_contradictions_batch
+    except ImportError as exc:
+        raise RuntimeError("NLI dependencies are required for contradiction detection; install requirements.txt") from exc
 
     nli_results = await asyncio.to_thread(check_contradictions_batch, pairs_to_check, 32)
 

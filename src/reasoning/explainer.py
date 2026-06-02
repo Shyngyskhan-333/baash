@@ -9,7 +9,26 @@ load_dotenv()
 
 CONFIG_PATH = Path("data/ai_config.json")
 
-PROMPT_CONTRADICTION = 
+PROMPT_CONTRADICTION = """
+Сравни два фрагмента нормативных актов Республики Казахстан и объясни, есть ли между ними противоречие.
+Отвечай строго JSON без markdown.
+
+Формат:
+{{
+  "contradiction": true,
+  "type": "semantic_conflict",
+  "explanation": "краткое объяснение",
+  "articles_involved": ["{law_a}", "{law_b}"]
+}}
+
+Акт A: {law_a}
+Фрагмент A:
+{text_a}
+
+Акт B: {law_b}
+Фрагмент B:
+{text_b}
+"""
 
 def _extract_json(text: str) -> dict:
     text = re.sub(r"```json\s*", "", text)

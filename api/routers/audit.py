@@ -7,7 +7,6 @@ from pathlib import Path
 
 from src.reasoning.detector import detect_all_problems
 from src.retrieval.retriever import LegalRetriever
-from src.graph.knowledge_graph import LegalKnowledgeGraph
 from api.services.ai_provider import ai_provider
 
 router = APIRouter()
@@ -55,6 +54,7 @@ async def _run_audit(doc_ids: Optional[List[str]] = None) -> dict:
 
     print(f"[AUDIT] Starting async audit with scope: {doc_ids}")
     retriever = LegalRetriever()
+    from src.graph.knowledge_graph import LegalKnowledgeGraph
     graph = LegalKnowledgeGraph()
 
     problems = await detect_all_problems(retriever, top_k_explain=5, doc_ids=doc_ids, ai_caller=ai_provider.complete)

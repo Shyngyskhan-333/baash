@@ -5,22 +5,22 @@ from typing import List, Dict, Any, Optional
 
 from src.retrieval.retriever import LegalRetriever
 from src.reasoning.version_compare import semantic_diff_chunk
+from src.search.service import SearchService
 
 class NLPService:
     def __init__(self):
         self.retriever = LegalRetriever()
+        self.search_service = SearchService(self.retriever)
 
     def search(self, query: str, top_k: int = 10, filters: Optional[Dict[str, Any]] = None, doc_ids: Optional[List[str]] = None) -> Dict[str, Any]:
 
-        results = self.retriever.search_hybrid(query, top_k=80 if (filters or doc_ids) else top_k, doc_ids=doc_ids)
-        if filters and "doc_id" in filters:
-            results = [r for r in results if r.get("doc_id") == filters["doc_id"]]
+        search_data = self.search_service.search(query, top_k=top_k, filters=filters, doc_ids=doc_ids)
         from src.embeddings.embedder import embed_text
         try:
             query_vec = embed_text(query, is_query=True).tolist()
         except Exception:
             query_vec = []
-        return {"results": results[:top_k], "query_vector": query_vec}
+        return {"results": search_data["results"], "query_vector": query_vec}
 
     def get_document_by_id(self, doc_id: str) -> Optional[Dict[str, Any]]:
 
